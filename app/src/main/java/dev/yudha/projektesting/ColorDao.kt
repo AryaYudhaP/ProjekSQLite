@@ -1,16 +1,17 @@
 package dev.yudha.projektesting
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
+//import androidx.room.Dao
+//import androidx.room.Delete
+//import androidx.room.Insert
+//import androidx.room.Query
+//import androidx.room.Update
 
 @Dao
 interface ColorDao {
 
-    @Query("select * from Color")
-    fun getAll():Array<Color>
+    @Query("SELECT * FROM Color")
+    fun getAll(): List<Color>
 
     @Insert
     fun insert(vararg color: Color)
