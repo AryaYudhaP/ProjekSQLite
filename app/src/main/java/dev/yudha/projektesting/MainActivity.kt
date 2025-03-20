@@ -3,12 +3,19 @@ package dev.yudha.projektesting
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import java.util.concurrent.Executors
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+//import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
+    val  colorViewModel: ColorViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -20,24 +27,33 @@ class MainActivity : AppCompatActivity() {
         }
 
         val db = ColorDatabase.getInstance(this)
-        val executor = Executors.newSingleThreadExecutor() // Buat background thread
 
-        executor.execute {
-            val dbColorDao = db.ColorDao()
-            val colors = dbColorDao.getAll()
+        GlobalScope.launch {
+            val colorRed = Color(hexColor = "#ff0000", name = "Red")
+            val colorBlue = Color(hexColor = "#0000ff", name = "Blue")
 
-            // Cek apakah warna "Red" sudah ada di database berdasarkan hexColor
-            val exists = colors.any { it.hexColor == "#ff0000" }
-
-            if (!exists) {
-                val colorRed = Color(hexColor = "#ff0000", name = "Red")
-                dbColorDao.insert(colorRed)
-            }
-
-            // Cek apakah data masuk dengan menampilkan isi database di Log
-            val updatedColors = dbColorDao.getAll()
-            Log.d("Database", "Colors in DB: $updatedColors")
+            db.ColorDao().insert(colorRed, colorBlue)
+            val colors = db.ColorDao().getAll()
+            Log.d("Database", "Colors in DB: $colors")
         }
 
+        colorViewModel.colorDatabase = ColorDatabase.getInstance(this)
+
+        val observer = Observer<List<Color>> { colors ->
+            for (color in colors) {
+                print(color.name)
+            }
+        }
+
+        colorViewModel.colors.observe(this@MainActivity, observer)
+        colorViewModel.getColors()
+
+        val colorBlue = Color( "#0000ff", "Blue")
+        colorViewModel.insertColor(colorBlue)
+
+        val deferredNumber = colorViewModel.getNumber()
+        lifecycleScope.launch {
+            println(deferredNumber.getCompleted())
+        }
     }
 }

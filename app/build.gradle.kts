@@ -38,8 +38,13 @@ android {
 
 dependencies {
     val room_version = "2.6.1"
+    val lifecycle_version = "2.8.7"
 
     implementation("androidx.room:room-runtime:$room_version")
+
+    implementation("androidx.room:room:$room_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-livedata:$lifecycle_version")
 
     // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
     // See Add the KSP plugin to your project
